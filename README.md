@@ -57,7 +57,7 @@ streamlit run app.py
 
 ## How it Works
 
-1. **Document Processing**: The application uses PyPDF loader to extract text from uploaded PDF documents.
+1. **Document Processing**: The application uses Langchain PDFPlumber loader to extract text from uploaded PDF documents.
 
 2. **Text Splitting**: The extracted text is split into manageable chunks using RecursiveCharacterTextSplitter.
 

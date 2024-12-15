@@ -1,12 +1,11 @@
 import os
 import streamlit as st
 from dotenv import load_dotenv
-from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import Chroma
-from langchain_openai import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
+from langchain_community.document_loaders import PDFPlumberLoader
 import tempfile
 
 # Load environment variables
@@ -35,17 +34,22 @@ def process_documents(uploaded_files):
             with open(temp_filepath, "wb") as f:
                 f.write(uploaded_file.getvalue())
             
-            # Load PDF
-            loader = PyPDFLoader(temp_filepath)
-            documents.extend(loader.load())
+            # Load PDF with PDFPlumberLoader
+            loader = PDFPlumberLoader(temp_filepath)
+            docs = loader.load()
+            documents.extend(docs)
+            
+            print(f"Loaded {len(documents)} pages from {uploaded_file.name}")
+            print(f"First page: {documents[0].page_content}")
 
         # Split documents into chunks
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
-            chunk_overlap=200,
+            chunk_overlap=200
         )
         splits = text_splitter.split_documents(documents)
 
+        print(f"Split into {len(splits)} chunks: {splits[0].page_content}")
         # Create embeddings and store in vector database
         embeddings = OpenAIEmbeddings(
             model="text-embedding-ada-002",
@@ -103,9 +107,11 @@ if st.session_state.conversation:
             
             # Display source documents
             with st.expander("View Source Documents"):
-                for source_doc in response["source_documents"]:
-                    st.write(source_doc.page_content)
-                    st.write("---")
+                for i, source_doc in enumerate(response["source_documents"], 1):
+                    st.markdown(f"**Source {i}:**")
+                    # Use a code block to preserve formatting
+                    st.markdown(f"```\n{source_doc.page_content}\n```")
+                    st.markdown("---")
 
 # Display chat history
 if st.session_state.chat_history:
