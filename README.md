@@ -19,7 +19,7 @@ This is a Streamlit-based application that implements Retrieval-Augmented Genera
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/Abdullah438/rag-app.git
 cd rag-app
 ```
 
